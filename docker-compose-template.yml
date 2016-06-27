@@ -1,0 +1,84 @@
+sampleeureka:
+  image: "sample-hystrix-eureka:1.0.1-SNAPSHOT"
+  ports:
+   - "#EUREKA_PORT#:#EUREKA_PORT#"
+
+sampleconfig:
+  image: "sample-hystrix-config:1.0.1-SNAPSHOT"
+  links:
+    - sampleeureka
+  environment:
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+  ports:
+    - "#CONFIG_PORT#:#CONFIG_PORT#"
+
+sampleservice:
+  image: sample-hystrix-service:1.0.1-SNAPSHOT
+  links:
+    - sampleeureka
+    - sampleconfig
+  environment:
+	
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+     SPRING_PROFILES_ACTIVE: docker
+  ports:
+    - "#SERVICE_PORT_1#:#SERVICE_PORT_1#"
+
+sampleaggregate1:
+  image: sample-hystrix-aggregate:1.0.1-SNAPSHOT
+  links:
+    - sampleeureka
+    - sampleconfig
+    - sampleservice
+  environment:
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+     SPRING_PROFILES_ACTIVE: docker
+
+sampleaggregate2:
+  image: sample-hystrix-aggregate:1.0.1-SNAPSHOT
+  links:
+    - sampleeureka
+    - sampleconfig
+    - sampleservice
+  environment:
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+     SPRING_PROFILES_ACTIVE: docker
+
+samplegateway:
+  image: sample-hystrix-gateway:1.0.1-SNAPSHOT
+  links:
+    - sampleeureka
+    - sampleconfig
+    - sampleaggregate1
+    - sampleaggregate2
+  environment:
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+     SPRING_PROFILES_ACTIVE: docker
+  ports:
+    - "#SERVER_PORT#:#SERVER_PORT#"
+
+samplemonitor:
+  image: sample-hystrix-monitor:1.0.1-SNAPSHOT
+  links:
+    - sampleeureka
+    - sampleconfig
+    - sampleservice
+    - sampleaggregate1
+    - sampleaggregate2
+  environment:
+     EUREKA_HOST: sampleeureka
+     EUREKA_PORT: #EUREKA_PORT#
+     SERVER_PORT: #SERVER_PORT#
+     SPRING_PROFILES_ACTIVE: docker
+  ports:
+    - "#SERVICE_PORT_2#:#SERVICE_PORT_2#"
